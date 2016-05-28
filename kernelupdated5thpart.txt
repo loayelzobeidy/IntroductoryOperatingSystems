@@ -1,0 +1,255 @@
+void printString(char*);
+void readString(char*);
+void readSector(char* , int );
+int div(int ,int );
+int mod(int ,int );
+bool name1(char*,char*); 
+void readFile(char*,char*);
+handleInterrupt21(int,int,int,int);
+void executeProgram(char*,int);
+bool name1(char*,char*);
+void writeSector(char*,int);
+void terminate();
+void main (){
+ //  char line[80];
+ // printString("Enter a line: \0");
+ // readString(line);
+ // printString(line);
+// char buffer[512];
+// readSector(buffer, 30);
+// printString(buffer);
+ // makeInterrupt21();
+ // interrupt(0x21,0,0,0,0);
+//  char line[80];
+// makeInterrupt21();
+// interrupt(0x21,1,line,0,0);
+// interrupt(0x21,0,line,0,0);
+char buffer[13312]; /*this is the maximum size of a file*/
+makeInterrupt21();
+interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
+interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
+while(1);
+}
+ bool name1(char* s,char* l)
+{   
+	int i = 0;
+	while (i<6){
+		if(*(s)!=*(l))
+			return 0 ; 
+
+		i++;
+		s++;
+		l++;
+           }
+		return 1;
+}
+void readFile(char* s,char* result){
+	char directory[512] ;
+    readSector(directory,1);
+    if(name_match(s,directory))
+    {
+    	while(*(s)!=0){
+    		readSector(result,*(directory));
+            result +=512;
+    }
+}
+    else
+    	s-=6;
+
+}
+
+void printString(char* s){
+for(;*(s)!='\0';s++){
+	interrupt(0x10, 0xE*256+*(s), 0, 0, 0);
+}
+
+}
+void executeProgram(char* name, int segment){
+	char* buffer;
+	readFile(name ,buffer);
+	while(*(buffer)!=0)
+		putInMemory(0xB000, 0x8140,*(buffer));
+	    launchProgram(segment);
+}
+
+
+void readString(char* s){
+	  
+	do{
+char  typed = interrupt(0x16,0,0,0,0);
+if(typed==0xd)
+{
+   *(s)=0xa;
+   s++;
+   *(s)=0x0;
+   return ;
+
+}
+if(typed==0x8){
+	interrupt(0x10, 0xE*256+0x8, 0, 0, 0);
+s--;
+interrupt(0x10, 0xE*256+0x0, 0, 0, 0);
+interrupt(0x10, 0xE*256+0x8, 0, 0, 0);
+
+}
+else{
+*(s)=typed;
+s++;
+interrupt(0x10, 0xE*256+typed, 0, 0, 0);
+}
+
+}while(1);
+}
+int div(int n ,int d) {
+	int result = 0 ;
+	while (n>d){
+  n = n- d;
+  result++;
+}
+return result ;
+}
+
+int mod(int n ,int d) {
+	int i = n-(div(n,d)*d);
+
+return i;
+}
+
+void readSector(char* buffer, int sector){
+	int ah = 2;
+	int al = 1;
+	int cl = mod(sector,18)+ 1;
+    char* bx = buffer;
+	int dh =  mod(div(sector , 18),2);
+	int ch  = div(sector,36);
+	int dl = 0;
+	int cx=ch*256+cl ;
+	int dx=dh*256+dl ;
+	int ax=ah*256 + al;
+	
+	buffer = interrupt(0x13,ax,bx,cx,dx);
+}
+void writeSector(char* buffer, int sector){
+	int ah = 3;
+	int al = 1;
+	int cl = mod(sector,18)+ 1;
+    char* bx = buffer;
+	int dh =  mod(div(sector , 18),2);
+	int ch  = div(sector,36);
+	int dl = 0;
+	int cx=ch*256+cl ;
+	int dx=dh*256+dl ;
+	int ax=ah*256 + al;
+	
+	interrupt(0x13,ax,bx,cx,dx);
+}
+void terminate(){
+	while(1);
+}
+
+bool name_match(char* n1, char *n2){
+	char directory[512];
+	for(int i=1; i<7;){
+	if(n1[i]==n2[i])
+		i++;
+	else
+		return false;
+}
+
+return true
+
+}
+
+deleteFile(char* name){
+
+	char directory[512] ;
+	char map[512] ;
+	int k=1;
+	//not sure abt the k counter 
+	// TODO check k functionality
+	for(int i=1; i<512;i+=32){
+		if(name[k]==directory[i])
+			for(int h=0; h<6; h++){
+				if(name[h]==directory[i+h])
+			directory[i]=0x00;
+			}
+				for(int j=0; j<=26; j++){
+					if(directory[j]!=0x00)
+						directory[j]=0x00;
+						int k=j+1;
+						map[k]=0x00;
+			}
+		k++;
+	else
+		k++;
+	}
+		}
+		
+	//readSector(directory,1);
+	/*if(name_match(name, directory[6])==true)
+		*directory+=26;
+}  
+    	writeSector(*(directory),0x00);
+    	map[*(directory)-1]= 0x00;
+*/
+    	int countname(char* name){
+    		int i=0;
+    		while(name[i]!='/0'){
+    			i++;
+    		}
+    		return i;
+    	}
+
+writeFile(char* name, char* buffer, int secNum){
+		map[512];
+		directory[512];
+			for(int i=1; i<512;i+=32){
+				if(directory[i]==0x00){
+					for(int j=0; j<6; j++){
+						if(countname(name)>=j){
+						directory[i+j]= name[j];
+						}
+						else 
+							directory[i+j]=0x00;
+					}
+
+					//for(int k=0; k<26; k++){
+					for(int l=0; l<512; l++)
+						//if(map[(i+6)-1]==0x00){
+						if(map[l]==0x00){
+							map[l]=0xFF;
+							//l=secNum;
+							writeSector(buffer,secNum);
+						}
+					}
+				}
+		
+}
+}
+// makeInterrupt21(){
+
+
+// }
+handleInterrupt21(int ax, int bx, int cx, int dx){
+	printString("hello world");
+   if(ax==0)
+   	printString(bx);
+   if(ax==1)
+   	readString(bx);
+   if(ax==2)
+   	readSector(bx,cx);
+   if(ax==3)
+   	readfile(bx,cx);
+   if(ax==4)
+   executeProgram(bx,cx);
+   if(ax==5)
+   	terminate();
+   if(ax>=6)
+   	writeSector();
+   if (ax>=7)
+   	deleteFile(bx);
+   if(ax>=8)
+   	writeFile(bx,cx,dx);
+   if(ax>=9)
+   	printString("Error");
+ }
